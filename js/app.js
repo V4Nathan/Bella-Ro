@@ -310,14 +310,14 @@
     if (b.ate) { var hoje = new Date(); hoje.setHours(0, 0, 0, 0); if (new Date(b.ate + "T23:59:59") < hoje) return false; }
     return true;
   }
-  function renderEvento() {
-    var el = $("#evento"), b = C.banner;
-    if (!el || !bannerVisivel(b)) return;
+  function htmlEvento() {
+    var b = C.banner;
+    if (!bannerVisivel(b)) return "";
     var mapa = "https://www.google.com/maps/search/?api=1&query=" + encodeURIComponent([b.local, b.endereco].filter(Boolean).join(", ").replace(/ · /g, ", "));
     var msg = "Olá! Quero confirmar presença no " + b.titulo + (b.data ? " (" + b.data + ")" : "") + ".";
     var marcas = (b.marcas || []).filter(Boolean);
-    el.innerHTML = '<div class="evento__in">' +
-      '<div class="evento__txt reveal">' +
+    return '<div class="hero__slide hero__slide--evento evento' + (b.imagem ? "" : " evento--sem-foto") + '" data-evento><div class="evento__in">' +
+      '<div class="evento__txt">' +
         (b.selo ? '<p class="evento__selo">' + esc(b.selo) + "</p>" : "") +
         '<h2 class="evento__titulo">' + esc(b.titulo) + "</h2>" +
         (b.data || b.horario ? '<div class="evento__quando">' +
@@ -329,34 +329,39 @@
         '<div class="evento__acoes"><a class="btn evento__btn" href="' + urlWpp(msg) + '" target="_blank" rel="noopener">' + esc(b.botao || "Confirmar presença") + "</a>" +
           (b.endereco ? '<a class="evento__mapa" href="' + mapa + '" target="_blank" rel="noopener">Como chegar</a>' : "") + "</div>" +
         (marcas.length ? '<div class="evento__marcas"><small>Marcas participantes</small><div>' +
-          marcas.map(function (m) { return '<img src="' + esc(m) + '" alt="" loading="lazy" width="56" height="56">'; }).join("") + "</div></div>" : "") +
+          marcas.map(function (m) { return '<img src="' + esc(m) + '" alt="" width="56" height="56">'; }).join("") + "</div></div>" : "") +
       "</div>" +
-      (b.imagem ? '<div class="evento__foto"><img src="' + esc(b.imagem) + '" alt="" loading="lazy"></div>' : "") +
-      "</div>";
-    if (!b.imagem) el.classList.add("evento--sem-foto");
-    el.hidden = false; observar(el);
+      (b.imagem ? '<div class="evento__foto"><img src="' + esc(b.imagem) + '" alt="" fetchpriority="high"></div>' : "") +
+      "</div></div>";
   }
 
   function paginaHome() {
-    renderEvento();
     // hero: 3 slides com 3 fotos cada, das peças mais recentes
     var heroPool = PRODUTOS.slice(0, 30);
     var slides = [heroPool.slice(0, 3), heroPool.slice(3, 6), heroPool.slice(6, 9)].filter(function (s) { return s.length === 3; });
     var hs = $("#hero-slides"), dots = $("#hero-dots");
-    hs.innerHTML = slides.map(function (s, i) {
-      return '<div class="hero__slide' + (i === 0 ? " is-active" : "") + '">' + s.map(function (p, j) { return '<img src="' + p.foto() + '" alt="" ' + (i === 0 ? (j === 0 ? 'fetchpriority="high"' : "") : 'loading="lazy"') + ">"; }).join("") + "</div>";
+    // banner de evento (painel → Banner) entra como primeiro slide do carrossel
+    var ev = htmlEvento();
+    hs.innerHTML = ev + slides.map(function (s, i) {
+      var pri = i === 0 && !ev;
+      return '<div class="hero__slide">' + s.map(function (p, j) { return '<img src="' + p.foto() + '" alt="" ' + (pri && j === 0 ? 'fetchpriority="high"' : (pri ? "" : 'loading="lazy"')) + ">"; }).join("") + "</div>";
     }).join("");
-    dots.innerHTML = slides.map(function (_, i) { return '<button aria-label="Slide ' + (i + 1) + '"' + (i === 0 ? ' class="is-active"' : "") + "></button>"; }).join("");
-    var cur = 0, timer;
+    var total = $$(".hero__slide", hs).length;
+    dots.innerHTML = Array.apply(null, Array(total)).map(function (_, i) { return '<button aria-label="Slide ' + (i + 1) + '"></button>'; }).join("");
+    var hero = hs.parentNode, cur = 0, timer;
     function go(n) {
       var ss = $$(".hero__slide", hs), ds = $$("button", dots);
       ss[cur].classList.remove("is-active"); ds[cur].classList.remove("is-active");
       cur = (n + ss.length) % ss.length;
       ss[cur].classList.add("is-active"); ds[cur].classList.add("is-active");
+      hero.classList.toggle("hero--evento", ss[cur].hasAttribute("data-evento"));
     }
-    function auto() { clearInterval(timer); timer = setInterval(function () { go(cur + 1); }, 5500); }
+    if (total) { cur = 0; $$(".hero__slide", hs)[0].classList.add("is-active"); $$("button", dots)[0].classList.add("is-active"); hero.classList.toggle("hero--evento", !!ev); }
+    function auto() { clearTimeout(timer); timer = setTimeout(function () { go(cur + 1); auto(); }, hero.classList.contains("hero--evento") ? 9000 : 5500); }
     $$("button", dots).forEach(function (d, i) { d.onclick = function () { go(i); auto(); }; });
-    if (slides.length > 1 && !matchMedia("(prefers-reduced-motion: reduce)").matches) auto();
+    hero.addEventListener("mouseenter", function () { clearTimeout(timer); });
+    hero.addEventListener("mouseleave", function () { if (total > 1 && !matchMedia("(prefers-reduced-motion: reduce)").matches) auto(); });
+    if (total > 1 && !matchMedia("(prefers-reduced-motion: reduce)").matches) auto();
 
     $("#novidades").innerHTML = PRODUTOS.slice(0, 8).map(function (p) { return card(p); }).join("");
 

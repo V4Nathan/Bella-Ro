@@ -53,7 +53,7 @@ window.BELLA_CONFIG = {
     "42": ["76–80", "102–106"], "44": ["80–84", "106–110"], "46": ["84–88", "110–114"]
   },
 
-  // Banner de evento na página inicial (editável no painel, em Configurações).
+  // Banner de evento: primeiro slide do carrossel da capa (editável no painel, aba Banner).
   // Aparece só com ativo = true e até a data de "ate" (AAAA-MM-DD). Para testar: /?banner=1
   banner: {
     ativo: true,
