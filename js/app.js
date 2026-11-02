@@ -302,7 +302,43 @@
   function primeiro(est) { return PRODUTOS.filter(function (p) { return p.estacao === est; }); }
   function daCategoria(c) { return PRODUTOS.filter(function (p) { return p.categoria === c; }); }
 
+  /* banner de evento (configurado no painel) */
+  function bannerVisivel(b) {
+    if (!b || !b.titulo) return false;
+    if (qs("banner") === "1") return true;
+    if (!b.ativo) return false;
+    if (b.ate) { var hoje = new Date(); hoje.setHours(0, 0, 0, 0); if (new Date(b.ate + "T23:59:59") < hoje) return false; }
+    return true;
+  }
+  function renderEvento() {
+    var el = $("#evento"), b = C.banner;
+    if (!el || !bannerVisivel(b)) return;
+    var mapa = "https://www.google.com/maps/search/?api=1&query=" + encodeURIComponent([b.local, b.endereco].filter(Boolean).join(", ").replace(/ · /g, ", "));
+    var msg = "Olá! Quero confirmar presença no " + b.titulo + (b.data ? " (" + b.data + ")" : "") + ".";
+    var marcas = (b.marcas || []).filter(Boolean);
+    el.innerHTML = '<div class="evento__in">' +
+      '<div class="evento__txt reveal">' +
+        (b.selo ? '<p class="evento__selo">' + esc(b.selo) + "</p>" : "") +
+        '<h2 class="evento__titulo">' + esc(b.titulo) + "</h2>" +
+        (b.data || b.horario ? '<div class="evento__quando">' +
+          (b.data ? '<span><small>Quando</small>' + esc(b.data) + "</span>" : "") +
+          (b.horario ? '<span><small>Horário</small>' + esc(b.horario) + "</span>" : "") + "</div>" : "") +
+        (b.local || b.endereco ? '<p class="evento__onde"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21s-7-6.2-7-11.5A7 7 0 0 1 19 9.5C19 14.8 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.5"/></svg><span>' +
+          (b.local ? "<strong>" + esc(b.local) + "</strong>" : "") + esc(b.endereco || "") + "</span></p>" : "") +
+        (b.texto ? '<p class="evento__desc">' + esc(b.texto) + "</p>" : "") +
+        '<div class="evento__acoes"><a class="btn evento__btn" href="' + urlWpp(msg) + '" target="_blank" rel="noopener">' + esc(b.botao || "Confirmar presença") + "</a>" +
+          (b.endereco ? '<a class="evento__mapa" href="' + mapa + '" target="_blank" rel="noopener">Como chegar</a>' : "") + "</div>" +
+        (marcas.length ? '<div class="evento__marcas"><small>Marcas participantes</small><div>' +
+          marcas.map(function (m) { return '<img src="' + esc(m) + '" alt="" loading="lazy" width="56" height="56">'; }).join("") + "</div></div>" : "") +
+      "</div>" +
+      (b.imagem ? '<div class="evento__foto"><img src="' + esc(b.imagem) + '" alt="" loading="lazy"></div>' : "") +
+      "</div>";
+    if (!b.imagem) el.classList.add("evento--sem-foto");
+    el.hidden = false; observar(el);
+  }
+
   function paginaHome() {
+    renderEvento();
     // hero: 3 slides com 3 fotos cada, das peças mais recentes
     var heroPool = PRODUTOS.slice(0, 30);
     var slides = [heroPool.slice(0, 3), heroPool.slice(3, 6), heroPool.slice(6, 9)].filter(function (s) { return s.length === 3; });

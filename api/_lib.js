@@ -119,5 +119,16 @@ export function limparConfig(c) {
   const campos = ["whatsapp", "whatsappExibicao", "instagram", "email", "endereco", "horario", "pedidoMinimo", "pagamento", "envio"];
   for (const k of campos) if (c && c[k] != null) out[k] = String(c[k]).slice(0, 300).trim();
   if (c && Array.isArray(c.avisos)) out.avisos = c.avisos.map((a) => String(a).slice(0, 120).trim()).filter(Boolean).slice(0, 8);
+  if (c && c.banner && typeof c.banner === "object") {
+    const b = c.banner, t = (v, n) => String(v == null ? "" : v).slice(0, n).trim();
+    out.banner = {
+      ativo: !!b.ativo,
+      selo: t(b.selo, 60), titulo: t(b.titulo, 60), data: t(b.data, 60), horario: t(b.horario, 60),
+      local: t(b.local, 80), endereco: t(b.endereco, 140), texto: t(b.texto, 300), botao: t(b.botao, 40),
+      ate: /^\d{4}-\d{2}-\d{2}$/.test(b.ate || "") ? b.ate : "",
+      imagem: t(b.imagem, 600),
+      marcas: (Array.isArray(b.marcas) ? b.marcas : []).map((m) => t(m, 600)).filter(Boolean).slice(0, 12)
+    };
+  }
   return out;
 }

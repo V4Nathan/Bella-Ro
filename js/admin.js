@@ -93,7 +93,7 @@
       estado.atualizadoEm = d.atualizadoEm || "";
       estado.vazio = !!d.vazio || !estado.produtos.length;
       tela("tela-app");
-      renderVazio(); renderLista(); preencherConfig();
+      renderVazio(); renderLista(); preencherConfig(); preencherBanner();
       // primeira vez: traz sozinho os modelos que já estão no site
       if (estado.vazio && (window.BELLA_PRODUTOS || []).length && !importando) importar();
     }).catch(function (e) {
@@ -126,8 +126,7 @@
   /* ---------------- navegação ---------------- */
   function irPara(aba) {
     $$("[data-aba]").forEach(function (x) { x.classList.toggle("is-on", x.dataset.aba === aba); });
-    $("#aba-produtos").hidden = aba !== "produtos";
-    $("#aba-config").hidden = aba !== "config";
+    ["produtos", "banner", "config"].forEach(function (a) { $("#aba-" + a).hidden = aba !== a; });
     window.scrollTo(0, 0);
   }
   $$("[data-aba]").forEach(function (b) { b.addEventListener("click", function () { irPara(b.dataset.aba); }); });
@@ -631,8 +630,92 @@
     }).catch(function (e) { toast(e.message, true); }).then(function () { b.disabled = false; b.textContent = "Salvar configurações"; });
   });
 
+
+  /* ---------------- banner ---------------- */
+  var BN_TXT = ["selo", "titulo", "data", "horario", "local", "endereco", "texto", "botao", "ate"];
+  var bn = null, bnSujo = false, bnEnviando = 0;
+  function marcarBn(v) {
+    bnSujo = v; $("#bn-barra").classList.toggle("is-sujo", v);
+    $("#bn-estado").textContent = v ? "Alterações não salvas" : "Tudo salvo";
+    statusBanner();
+  }
+  function statusBanner() {
+    var f = $("#form-banner"), el = $("#bn-status"), ate = f.ate.value;
+    var hoje = new Date().toISOString().slice(0, 10);
+    if (!f.ativo.checked) el.textContent = "Desligado. Ninguém vê o banner no site.";
+    else if (ate && ate < hoje) el.innerHTML = '<span style="color:var(--alerta)">A data “Mostrar até” já passou (' + ate.split("-").reverse().join("/") + '). Atualize para o banner voltar a aparecer.</span>';
+    else el.textContent = ate ? "No ar até " + ate.split("-").reverse().join("/") + "." : "No ar.";
+  }
+  function preencherBanner() {
+    bn = JSON.parse(JSON.stringify(estado.config.banner || CFG.banner || {}));
+    bn.marcas = bn.marcas || [];
+    var f = $("#form-banner");
+    f.ativo.checked = !!bn.ativo;
+    BN_TXT.forEach(function (k) { f[k].value = bn[k] || ""; });
+    renderBnImagens(); marcarBn(false);
+  }
+  function itemImg(url, i, tipo, total) {
+    return '<li class="foto"><img src="' + esc(url) + '" alt="">' +
+      '<span class="foto__acoes">' +
+      (tipo === "marcas" && i > 0 ? '<button type="button" data-bn="' + tipo + '" data-mover="-1" data-i="' + i + '" aria-label="Mover para a esquerda">' + ic("left") + "</button>" : "") +
+      '<button type="button" data-bn="' + tipo + '" data-remover data-i="' + i + '" aria-label="Remover">' + ic("trash") + "</button>" +
+      (tipo === "marcas" && i < total - 1 ? '<button type="button" data-bn="' + tipo + '" data-mover="1" data-i="' + i + '" aria-label="Mover para a direita">' + ic("right") + "</button>" : "") +
+      "</span></li>";
+  }
+  function addTile(tipo, txt, multiplo) {
+    return '<li><label class="foto-add">' + ic("upload") + "<span>" + txt + "</span>" +
+      '<input type="file" accept="image/*" data-bn-up="' + tipo + '"' + (multiplo ? " multiple" : "") + ' aria-label="' + txt + '"></label></li>';
+  }
+  function renderBnImagens() {
+    $("#bn-foto").innerHTML = (bn.imagem ? itemImg(bn.imagem, 0, "imagem", 1) : "") +
+      (bnEnviando && !bn.imagem ? '<li class="foto foto--enviando"><span class="spinner"></span></li>' : "") +
+      addTile("imagem", bn.imagem ? "Trocar foto" : "Enviar foto", false);
+    $("#bn-marcas").innerHTML = bn.marcas.map(function (m, i) { return itemImg(m, i, "marcas", bn.marcas.length); }).join("") +
+      addTile("marcas", "Adicionar", true);
+  }
+  $("#form-banner").addEventListener("click", function (ev) {
+    var b = ev.target.closest("button[data-bn]"); if (!b) return;
+    var tipo = b.dataset.bn, i = +b.dataset.i;
+    if (b.hasAttribute("data-remover")) {
+      if (tipo === "imagem") bn.imagem = ""; else bn.marcas.splice(i, 1);
+    } else {
+      var j = i + (+b.dataset.mover), t = bn.marcas[i]; bn.marcas[i] = bn.marcas[j]; bn.marcas[j] = t;
+    }
+    renderBnImagens(); marcarBn(true);
+  });
+  $("#form-banner").addEventListener("change", function (ev) {
+    var inp = ev.target;
+    if (!inp.dataset.bnUp) return;
+    var tipo = inp.dataset.bnUp, arquivos = Array.prototype.slice.call(inp.files || []);
+    if (!arquivos.length) return;
+    bnEnviando += arquivos.length; renderBnImagens();
+    arquivos.reduce(function (cadeia, arq) {
+      return cadeia.then(function () {
+        return carregarImagem(arq).then(function (img) { return redimensionar(img, tipo === "imagem" ? 1100 : 240); })
+          .then(function (blob) { return api("POST", "/api/admin/foto?produto=banner&tam=" + (tipo === "imagem" ? "l" : "s"), blob, blob.type); })
+          .then(function (r) { if (tipo === "imagem") bn.imagem = r.url; else bn.marcas.push(r.url); marcarBn(true); })
+          .catch(function (e) { toast(e.message, true); })
+          .then(function () { bnEnviando--; renderBnImagens(); });
+      });
+    }, Promise.resolve());
+  });
+  $("#form-banner").addEventListener("input", function (ev) { if (!ev.target.dataset.bnUp) marcarBn(true); });
+  $("#form-banner").addEventListener("submit", function (ev) {
+    ev.preventDefault();
+    if (bnEnviando) { toast("Espere as imagens terminarem de enviar.", true); return; }
+    var f = ev.target;
+    bn.ativo = f.ativo.checked;
+    BN_TXT.forEach(function (k) { bn[k] = f[k].value.trim(); });
+    if (bn.ativo && !bn.titulo) { toast("Escreva um título para o banner.", true); f.titulo.focus(); return; }
+    var b = f.querySelector("button[type=submit]"); b.disabled = true; b.innerHTML = SPIN_BRANCO + " Salvando";
+    api("PUT", "/api/admin/catalogo", { config: { banner: bn } }).then(function (d) {
+      estado.config.banner = JSON.parse(JSON.stringify(bn)); estado.atualizadoEm = d.atualizadoEm || estado.atualizadoEm;
+      marcarBn(false); renderResumo(); toast("Banner salvo. O site atualiza em até 1 minuto.");
+    }).catch(function (e) { toast(e.message, true); }).then(function () { b.disabled = false; b.textContent = "Salvar banner"; });
+  });
+
   window.addEventListener("beforeunload", function (ev) {
-    if ((ed && (sujo || enviando)) || cfgSujo) { ev.preventDefault(); ev.returnValue = ""; }
+    if ((ed && (sujo || enviando)) || cfgSujo || bnSujo) { ev.preventDefault(); ev.returnValue = ""; }
   });
 
   carregar();

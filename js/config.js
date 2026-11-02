@@ -53,6 +53,26 @@ window.BELLA_CONFIG = {
     "42": ["76–80", "102–106"], "44": ["80–84", "106–110"], "46": ["84–88", "110–114"]
   },
 
+  // Banner de evento na página inicial (editável no painel, em Configurações).
+  // Aparece só com ativo = true e até a data de "ate" (AAAA-MM-DD). Para testar: /?banner=1
+  banner: {
+    ativo: true,
+    selo: "Especial Outubro Rosa",
+    titulo: "Showroom",
+    data: "Dia 15 de outubro",
+    horario: "Das 13h às 20h",
+    local: "Atacado Bella Rô",
+    endereco: "Avenida Rocha Pombo, 1461 · Maringá",
+    texto: "Uma tarde para conhecer de perto as novidades da Bella Rô e das marcas parceiras.",
+    botao: "Confirmar presença",
+    ate: "2026-10-15",
+    imagem: "assets/eventos/showroom-foto.webp",
+    marcas: [
+      "assets/eventos/marca-1.webp", "assets/eventos/marca-2.webp", "assets/eventos/marca-3.webp",
+      "assets/eventos/marca-4.webp", "assets/eventos/marca-5.webp", "assets/eventos/marca-6.webp"
+    ]
+  },
+
   // Quantos dias uma peça fica marcada como "Novo"
   diasNovidade: 45
 };

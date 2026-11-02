@@ -85,6 +85,7 @@
     <img src="assets/bella-ro-logo-preto.svg" alt="Atacado Bella Rô" class="lateral__logo">
     <nav class="nav" aria-label="Seções do painel">
       <button class="nav__item is-on" data-aba="produtos"><svg class="i"><use href="#i-tag"/></svg><span>Produtos</span></button>
+      <button class="nav__item" data-aba="banner"><svg class="i"><use href="#i-image"/></svg><span>Banner</span></button>
       <button class="nav__item" data-aba="config"><svg class="i"><use href="#i-sliders"/></svg><span>Configurações</span></button>
     </nav>
     <div class="lateral__rodape">
@@ -150,6 +151,59 @@
     </div>
   </main>
 
+  <!-- ABA BANNER -->
+  <main class="pagina pagina--estreita" id="aba-banner" hidden>
+    <header class="pagina__topo">
+      <div>
+        <h1 class="pagina__titulo">Banner</h1>
+        <p class="pagina__sub">Faixa de evento ou promoção que aparece na página inicial, logo abaixo da capa.</p>
+      </div>
+      <a class="btn btn--sec" id="bn-ver" href="/?banner=1" target="_blank" rel="noopener"><svg class="i"><use href="#i-external"/></svg><span>Pré-visualizar</span></a>
+    </header>
+
+    <form id="form-banner" class="pilha">
+      <section class="painel">
+        <div class="opcoes">
+          <label class="opcao"><span class="opcao__txt"><strong>Mostrar na página inicial</strong><small id="bn-status">—</small></span><input type="checkbox" name="ativo" class="chave"></label>
+        </div>
+        <div class="campos campos--2" style="margin-top:16px">
+          <div class="campo"><label for="bn-ate">Mostrar até</label><input id="bn-ate" name="ate" type="date"><small>Depois desse dia o banner sai sozinho. Em branco, fica até você desligar.</small></div>
+        </div>
+      </section>
+
+      <section class="painel">
+        <header class="painel__cab"><h2>Texto</h2></header>
+        <div class="campos campos--2">
+          <div class="campo"><label for="bn-selo">Selo</label><input id="bn-selo" name="selo" placeholder="Especial Outubro Rosa"></div>
+          <div class="campo"><label for="bn-tit">Título</label><input id="bn-tit" name="titulo" placeholder="Showroom"></div>
+          <div class="campo"><label for="bn-data">Data</label><input id="bn-data" name="data" placeholder="Dia 15 de outubro"></div>
+          <div class="campo"><label for="bn-hor">Horário</label><input id="bn-hor" name="horario" placeholder="Das 13h às 20h"></div>
+          <div class="campo"><label for="bn-local">Local</label><input id="bn-local" name="local" placeholder="Atacado Bella Rô"></div>
+          <div class="campo"><label for="bn-end">Endereço</label><input id="bn-end" name="endereco" placeholder="Rua, número · Cidade"><small>Usado no botão “Como chegar”.</small></div>
+          <div class="campo campo--largo"><label for="bn-txt">Texto curto</label><textarea id="bn-txt" name="texto" rows="2"></textarea></div>
+          <div class="campo"><label for="bn-btn">Texto do botão</label><input id="bn-btn" name="botao" placeholder="Confirmar presença"><small>O botão abre o WhatsApp da loja.</small></div>
+        </div>
+      </section>
+
+      <section class="painel">
+        <header class="painel__cab"><h2>Imagens</h2><p>Foto em pé (vertical) funciona melhor. As marcas aparecem em círculos.</p></header>
+        <div class="grupo">
+          <h3 class="grupo__tit">Foto principal</h3>
+          <ul class="fotos" id="bn-foto"></ul>
+        </div>
+        <div class="grupo">
+          <h3 class="grupo__tit">Marcas participantes</h3>
+          <ul class="fotos fotos--marcas" id="bn-marcas"></ul>
+        </div>
+      </section>
+
+      <div class="barra-salvar" id="bn-barra">
+        <span class="barra-salvar__txt" id="bn-estado">Tudo salvo</span>
+        <button class="btn btn--primario" type="submit">Salvar banner</button>
+      </div>
+    </form>
+  </main>
+
   <!-- ABA CONFIGURAÇÕES -->
   <main class="pagina pagina--estreita" id="aba-config" hidden>
     <header class="pagina__topo">
@@ -201,6 +255,7 @@
 
   <nav class="abas-mob" aria-label="Seções do painel">
     <button class="abas-mob__item is-on" data-aba="produtos"><svg class="i"><use href="#i-tag"/></svg><span>Produtos</span></button>
+    <button class="abas-mob__item" data-aba="banner"><svg class="i"><use href="#i-image"/></svg><span>Banner</span></button>
     <button class="abas-mob__item" data-aba="config"><svg class="i"><use href="#i-sliders"/></svg><span>Configurações</span></button>
   </nav>
 </div>

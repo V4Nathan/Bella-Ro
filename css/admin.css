@@ -249,6 +249,11 @@ input::placeholder,textarea::placeholder{color:var(--muda-2)}
 .foto-add .i{width:22px;height:22px}
 .foto-add input{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%}
 
+.fotos--marcas{grid-template-columns:repeat(6,minmax(0,1fr))}
+.fotos--marcas .foto,.fotos--marcas .foto-add{aspect-ratio:1;border-radius:50%}
+.fotos--marcas .foto__acoes{justify-content:center;background:rgba(0,0,0,.35);inset:0;align-items:center;padding:0}
+.fotos--marcas .foto-add span{font-size:12px}
+
 /* cores / tamanhos */
 .grupo+.grupo{margin-top:24px;padding-top:24px;border-top:1px solid var(--linha)}
 .grupo__tit{font-size:13px;font-weight:500;color:var(--tinta-2);margin-bottom:10px}
@@ -320,7 +325,7 @@ input::placeholder,textarea::placeholder{color:var(--muda-2)}
   .topo-mob__logo{height:32px;width:auto}
   .topo-mob__acoes{display:flex;gap:2px}
   .abas-mob{display:flex;position:fixed;left:0;right:0;bottom:0;background:var(--superficie);border-top:1px solid var(--linha);padding-bottom:env(safe-area-inset-bottom);z-index:20}
-  .abas-mob__item{flex:1;height:64px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;font-size:12px;color:var(--muda)}
+  .abas-mob__item{flex:1;height:64px;min-width:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;font-size:12px;color:var(--muda)}
   .abas-mob__item .i{width:22px;height:22px}
   .abas-mob__item.is-on{color:var(--tinta);font-weight:500}
   .pagina{padding-top:24px}
@@ -356,6 +361,7 @@ input::placeholder,textarea::placeholder{color:var(--muda-2)}
   .gaveta__rodape .btn--perigo-texto span{display:none}
   .gaveta__erro{left:12px;right:12px}
   .fotos{grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+  .fotos--marcas{grid-template-columns:repeat(4,minmax(0,1fr))}
   .foto__acoes{opacity:1;padding:20px 4px 4px}
   .foto__acoes button{width:30px;height:30px}
   .estoque__acoes{flex-direction:column;align-items:stretch}
