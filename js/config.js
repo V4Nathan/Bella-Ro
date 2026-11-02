@@ -65,7 +65,7 @@ window.BELLA_CONFIG = {
     endereco: "Avenida Rocha Pombo, 1461 · Maringá",
     texto: "Uma tarde para conhecer de perto as novidades da Bella Rô e das marcas parceiras.",
     botao: "Confirmar presença",
-    ate: "2026-10-15",
+    ate: "",
     imagem: "assets/eventos/showroom-foto.webp",
     marcas: [
       "assets/eventos/marca-1.webp", "assets/eventos/marca-2.webp", "assets/eventos/marca-3.webp",
