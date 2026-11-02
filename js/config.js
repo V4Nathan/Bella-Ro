@@ -35,6 +35,24 @@ window.BELLA_CONFIG = {
   // Foto de capa das categorias na home (mesmo formato). Vazio = modelo mais recente.
   capasCategorias: { tricos: "DY7mhNjqi89" },
 
+  // Grade padrão por categoria (usada quando o modelo não tem tamanhos em categorias.csv)
+  gradePadrao: {
+    _: ["P", "M", "G", "GG"],
+    calcas: ["36", "38", "40", "42", "44", "46"],
+    praia: ["Único"]
+  },
+
+  // Tabela de medidas de referência, em cm. Letras: [busto, cintura, quadril]. Números: [cintura, quadril].
+  // PREENCHER/CONFIRMAR com as medidas reais da marca.
+  tabelaMedidas: {
+    P: ["86–90", "66–70", "94–98"],
+    M: ["90–94", "70–74", "98–102"],
+    G: ["94–100", "74–80", "102–108"],
+    GG: ["100–106", "80–86", "108–114"],
+    "36": ["66–68", "92–94"], "38": ["68–72", "94–98"], "40": ["72–76", "98–102"],
+    "42": ["76–80", "102–106"], "44": ["80–84", "106–110"], "46": ["84–88", "110–114"]
+  },
+
   // Quantos dias uma peça fica marcada como "Novo"
   diasNovidade: 45
 };

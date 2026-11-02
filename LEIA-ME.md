@@ -20,7 +20,9 @@ Preços não aparecem no site: são passados no atendimento.
 ## Categorias
 Cada modelo tem uma categoria (vestidos, conjuntos, blusas, tricos, calcas, saias,
 macacoes, moletons, masculino, praia) e um nome curto (ex.: "Vestido", "Blazer"),
-definidos em `categorias.csv`. Dá para abrir no Excel/Numbers, corrigir e rodar
+definidos em `categorias.csv`. O mesmo arquivo tem as colunas `tamanhos` (ex.: `P|M|G|GG`)
+e `cores` (ex.: `Preto|Off-white`), que aparecem na página do produto. As cores foram
+preenchidas olhando as fotos; confira e ajuste. A tabela de medidas fica em `js/config.js`. Dá para abrir no Excel/Numbers, corrigir e rodar
 `python3 gerar-catalogo.py` de novo. Modelos novos entram no fim do arquivo com a categoria em branco.
 
 ## O que editar

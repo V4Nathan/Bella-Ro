@@ -2,7 +2,6 @@
 (function () {
   "use strict";
   var C = window.BELLA_CONFIG || {};
-  var RAW = window.BELLA_PRODUTOS || [];
   var PAGE = document.body.getAttribute("data-page");
 
   var ESTACOES = {
@@ -17,20 +16,58 @@
     calcas: "Calças e bermudas", saias: "Saias", macacoes: "Macacões", moletons: "Moletons",
     masculino: "Masculino", praia: "Praia e acessórios"
   };
+  var CORES_HEX = {
+    "preto": "#1E1E1E", "branco": "#FFFFFF", "off-white": "#F3EFE6", "bege": "#D9C7AE", "nude": "#E3C2AE", "caramelo": "#B9773F",
+    "marrom": "#6B4A35", "terracota": "#B4532A", "cinza": "#9A9A9A", "azul-marinho": "#1F2A44", "azul": "#2F5DC8", "azul-claro": "#A9C8E8",
+    "jeans": "#4F6F94", "verde": "#4E7A4B", "verde-claro": "#B9D7A8", "vermelho": "#C62828", "vinho": "#6D1F2C", "rosa": "#F2B8C6",
+    "pink": "#E2357D", "laranja": "#F08A3C", "amarelo": "#F4D35E", "lilás": "#C3A6DA", "roxo": "#6A3D9A"
+  };
+  function swatch(nome) {
+    var k = String(nome).toLowerCase(), hex = CORES_HEX[k];
+    var cls = k === "estampado" ? " sw--estampa" : k === "listrado" ? " sw--listra" : k === "poá" ? " sw--poa" : "";
+    return '<span class="sw' + cls + '"' + (hex ? ' style="background:' + hex + '"' : "") + "></span>";
+  }
+  function resumoGrade(g) {
+    return Object.keys(g || {}).filter(function (t) { return g[t] > 0; }).map(function (t) { return t + ": " + g[t]; }).join(" · ");
+  }
   var ORDEM_CATEGORIAS = ["vestidos", "conjuntos", "blusas", "tricos", "calcas", "saias", "macacoes", "moletons", "masculino", "praia"];
 
   /* ---------------- dados ---------------- */
-  var PRODUTOS = RAW.map(function (p) {
+  // Formato do banco (admin): { id, ref, tipo, categoria, estacao, data, descricao, cores, tamanhos, estoque, fotos:[{s,l}], visivel, esgotado, destaque }
+  // Formato estático (js/produtos.js): { id, ref, e, c, t, d, f, z, k }
+  function doEstatico(p) {
     return {
-      id: p.id, ref: p.ref, estacao: p.e, categoria: CATEGORIAS[p.c] ? p.c : "", data: p.d, fotos: p.f,
-      nome: (p.t || "Modelo") + " " + p.ref,
-      thumb: function (i) { return "img/" + p.e + "/s/" + p.f[i || 0] + ".webp"; },
-      foto: function (i) { return "img/" + p.e + "/l/" + p.f[i || 0] + ".webp"; }
+      id: p.id, ref: p.ref, tipo: p.t, categoria: p.c, estacao: p.e, data: p.d, descricao: "",
+      cores: p.k || [], tamanhos: p.z || [], estoque: {},
+      fotos: p.f.map(function (f) { return { s: "img/" + p.e + "/s/" + f + ".webp", l: "img/" + p.e + "/l/" + f + ".webp" }; })
     };
-  }).sort(function (a, b) { return a.data < b.data ? 1 : a.data > b.data ? -1 : (a.ref < b.ref ? 1 : -1); });
-  var POR_ID = {};
-  PRODUTOS.forEach(function (p) { POR_ID[p.id] = p; });
-  var DATA_MAIS_RECENTE = PRODUTOS.length ? PRODUTOS[0].data : "";
+  }
+  function montar(p) {
+    var cat = CATEGORIAS[p.categoria] ? p.categoria : "";
+    var fotos = (p.fotos && p.fotos.length) ? p.fotos : [{ s: "assets/favicon.svg", l: "assets/favicon.svg" }];
+    return {
+      id: p.id, ref: p.ref, estacao: ESTACOES[p.estacao] ? p.estacao : "primavera", categoria: cat, data: p.data || "", fotos: fotos,
+      descricao: p.descricao || "", estoque: p.estoque || {}, esgotado: !!p.esgotado, destaque: !!p.destaque,
+      tamanhos: (p.tamanhos && p.tamanhos.length) ? p.tamanhos : ((C.gradePadrao || {})[cat] || (C.gradePadrao || {})._ || ["P", "M", "G", "GG"]),
+      cores: p.cores || [],
+      nome: (p.tipo || "Modelo") + " " + p.ref,
+      thumb: function (i) { var f = fotos[i || 0] || fotos[0]; return f.s || f.l; },
+      foto: function (i) { var f = fotos[i || 0] || fotos[0]; return f.l || f.s; }
+    };
+  }
+  var PRODUTOS = [], POR_ID = {}, DATA_MAIS_RECENTE = "";
+  function definirProdutos(lista) {
+    PRODUTOS = lista.map(montar).sort(function (a, b) { return a.data < b.data ? 1 : a.data > b.data ? -1 : (a.ref < b.ref ? 1 : -1); });
+    POR_ID = {};
+    PRODUTOS.forEach(function (p) { POR_ID[p.id] = p; });
+    DATA_MAIS_RECENTE = PRODUTOS.length ? PRODUTOS[0].data : "";
+  }
+  // estoque: undefined = não controlado; número = peças disponíveis
+  function estoqueDe(p, cor, tam) {
+    var v = p.estoque[(cor || "") + "|" + tam];
+    if (v === undefined) v = p.estoque["|" + tam];
+    return v;
+  }
   function ehNovo(p) {
     if (!DATA_MAIS_RECENTE) return false;
     var diff = (new Date(DATA_MAIS_RECENTE) - new Date(p.data)) / 864e5;
@@ -182,12 +219,15 @@
     var n = lerSacola().reduce(function (t, i) { return t + i.q; }, 0);
     $$("[data-bag-count]").forEach(function (b) { b.textContent = n; b.setAttribute("data-n", n); });
   }
-  function adicionar(id, q, obs) {
-    var s = lerSacola(); q = Math.max(1, parseInt(q, 10) || 1);
-    var it = s.filter(function (i) { return i.id === id; })[0];
-    if (it) { it.q += q; if (obs) it.obs = obs; } else s.push({ id: id, q: q, obs: obs || "" });
+  function adicionar(id, q, obs, cor, grade) {
+    var s = lerSacola(); q = Math.max(1, parseInt(q, 10) || 1); cor = cor || "";
+    var it = s.filter(function (i) { return i.id === id && (i.cor || "") === cor; })[0];
+    if (it) {
+      it.q += q; if (obs) it.obs = obs;
+      if (grade) { it.grade = it.grade || {}; Object.keys(grade).forEach(function (t) { it.grade[t] = (it.grade[t] || 0) + grade[t]; }); }
+    } else s.push({ id: id, q: q, obs: obs || "", cor: cor, grade: grade || null });
     salvarSacola(s);
-    toast(POR_ID[id].nome + " adicionado à sacola");
+    toast(POR_ID[id].nome + (cor ? " " + cor : "") + " adicionado à sacola");
   }
   function renderSacola() {
     var s = lerSacola(), body = $("#bag-body"), foot = $("#bag-foot");
@@ -197,24 +237,28 @@
       return;
     }
     body.innerHTML = s.map(function (i) {
-      var p = POR_ID[i.id];
-      return '<div class="bag-item" data-id="' + p.id + '"><a href="produto.html?id=' + p.id + '"><img src="' + p.thumb() + '" alt=""></a><div>' +
-        '<div class="bag-item__name">' + esc(p.nome) + '</div><div class="bag-item__meta">' + ESTACOES[p.estacao].nome + "</div>" +
+      var p = POR_ID[i.id], temGrade = i.grade && resumoGrade(i.grade);
+      return '<div class="bag-item" data-id="' + p.id + '" data-cor="' + esc(i.cor || "") + '"><a href="produto.html?id=' + p.id + '"><img src="' + p.thumb() + '" alt=""></a><div>' +
+        '<div class="bag-item__name">' + esc(p.nome) + '</div><div class="bag-item__meta">' + (i.cor ? swatch(i.cor) + " " + esc(i.cor) + " · " : "") + ESTACOES[p.estacao].nome + "</div>" +
+        (temGrade ? '<div class="bag-item__grade">' + esc(resumoGrade(i.grade)) + " <b>(" + plural(i.q, "peça", "peças") + ")</b></div>" : "") +
         (i.obs ? '<div class="bag-item__note">“' + esc(i.obs) + "”</div>" : "") +
-        '<div class="stepper"><button data-q="-1" aria-label="Diminuir">−</button><input type="number" min="1" value="' + i.q + '" aria-label="Quantidade"><button data-q="1" aria-label="Aumentar">+</button></div></div>' +
+        (temGrade ? "" : '<div class="stepper"><button data-q="-1" aria-label="Diminuir">−</button><input type="number" min="1" value="' + i.q + '" aria-label="Quantidade"><button data-q="1" aria-label="Aumentar">+</button></div>') + "</div>" +
         '<button class="bag-remove" data-rm>Remover</button></div>';
     }).join("");
     var total = s.reduce(function (t, i) { return t + i.q; }, 0);
     foot.innerHTML = '<div style="display:flex;justify-content:space-between;font-size:13px;letter-spacing:.14em;text-transform:uppercase"><span>' + plural(s.length, "modelo", "modelos") + "</span><span>" + plural(total, "peça", "peças") + "</span></div>" +
       '<a class="btn btn--wpp btn--block" id="bag-send" href="#" target="_blank" rel="noopener">' + I.wpp.replace("<svg", '<svg fill="currentColor"') + " Enviar pedido no WhatsApp</a>" +
-      "<small>Tamanhos, cores e valores são confirmados no atendimento. " + esc(C.pedidoMinimo || "") + ".</small>";
+      "<small>Disponibilidade e valores são confirmados no atendimento. " + esc(C.pedidoMinimo || "") + ".</small>";
     $("#bag-send").href = urlWpp(mensagemPedido(s));
     $$(".bag-item", body).forEach(function (row) {
-      var id = row.getAttribute("data-id"), inp = $("input", row);
-      function set(v) { var ss = lerSacola(); ss.forEach(function (i) { if (i.id === id) i.q = Math.max(1, v); }); salvarSacola(ss); renderSacola(); }
-      $$("[data-q]", row).forEach(function (b) { b.onclick = function () { set((parseInt(inp.value, 10) || 1) + parseInt(b.getAttribute("data-q"), 10)); }; });
-      inp.onchange = function () { set(parseInt(inp.value, 10) || 1); };
-      $("[data-rm]", row).onclick = function () { salvarSacola(lerSacola().filter(function (i) { return i.id !== id; })); renderSacola(); };
+      var id = row.getAttribute("data-id"), cor = row.getAttribute("data-cor"), inp = $("input", row);
+      function mesmo(i) { return i.id === id && (i.cor || "") === cor; }
+      function set(v) { var ss = lerSacola(); ss.forEach(function (i) { if (mesmo(i)) i.q = Math.max(1, v); }); salvarSacola(ss); renderSacola(); }
+      if (inp) {
+        $$("[data-q]", row).forEach(function (b) { b.onclick = function () { set((parseInt(inp.value, 10) || 1) + parseInt(b.getAttribute("data-q"), 10)); }; });
+        inp.onchange = function () { set(parseInt(inp.value, 10) || 1); };
+      }
+      $("[data-rm]", row).onclick = function () { salvarSacola(lerSacola().filter(function (i) { return !mesmo(i); })); renderSacola(); };
     });
   }
   function mensagemPedido(s) {
@@ -222,10 +266,12 @@
     var total = 0;
     s.forEach(function (i) {
       var p = POR_ID[i.id]; total += i.q;
-      linhas.push("• " + p.nome + " (" + ESTACOES[p.estacao].nome + ") — " + plural(i.q, "peça", "peças") + (i.obs ? " — " + i.obs : ""));
+      linhas.push("• " + p.nome + (i.cor ? " — cor " + i.cor : "") + " — " + plural(i.q, "peça", "peças"));
+      if (i.grade && resumoGrade(i.grade)) linhas.push("  Grade: " + resumoGrade(i.grade));
+      if (i.obs) linhas.push("  Obs.: " + i.obs);
       var l = linkProduto(p); if (l) linhas.push("  " + l);
     });
-    linhas.push("", "Total: " + plural(total, "peça", "peças"), "Pode me passar tamanhos, cores disponíveis e valores?");
+    linhas.push("", "Total: " + plural(total, "peça", "peças"), "Pode me confirmar disponibilidade e valores?");
     return linhas.join("\n");
   }
 
@@ -234,10 +280,11 @@
     var alt = p.fotos.length > 1 ? '<img class="alt" src="' + p.thumb(1) + '" alt="" loading="lazy">' : "";
     return '<article class="card reveal"><a class="card__media" href="produto.html?id=' + p.id + '" aria-label="' + esc(p.nome) + '">' +
       '<img src="' + p.thumb() + '" alt="' + esc(p.nome) + " — coleção " + ESTACOES[p.estacao].nome + '" loading="' + (eager ? "eager" : "lazy") + '">' + alt +
-      (ehNovo(p) ? '<span class="card__tag">Novo</span>' : "") +
+      (p.esgotado ? '<span class="card__tag card__tag--off">Esgotado</span>' : ehNovo(p) ? '<span class="card__tag">Novo</span>' : "") +
       (p.fotos.length > 1 ? '<span class="card__count">' + p.fotos.length + " fotos</span>" : "") +
       '</a><button class="card__quick" data-add="' + p.id + '">Adicionar à sacola</button>' +
       '<div class="card__info"><a class="card__name" href="produto.html?id=' + p.id + '">' + esc(p.nome) + '</a><span class="card__meta">' + (p.categoria ? CATEGORIAS[p.categoria] + " · " : "") + ESTACOES[p.estacao].nome + "</span>" +
+      (p.cores.length ? '<span class="card__cores">' + p.cores.map(swatch).join("") + '<span class="card__tams">' + esc(p.tamanhos[0] + (p.tamanhos.length > 1 ? " ao " + p.tamanhos[p.tamanhos.length - 1] : "")) + "</span></span>" : "") +
       '<button class="card__cta" data-add="' + p.id + '">+ Adicionar à sacola</button></div></article>';
   }
   document.addEventListener("click", function (ev) {
@@ -292,7 +339,9 @@
         '<span class="season__txt"><span class="season__name">' + ESTACOES[e].nome + '</span><span class="season__n">' + plural(lista.length, "modelo", "modelos") + "</span></span></a>";
     }).join("");
 
-    var destaque = PRODUTOS.slice(8, 12);
+    // "Destaques": primeiro os marcados no painel, completando com os próximos mais recentes
+    var marcados = PRODUTOS.filter(function (p) { return p.destaque; });
+    var destaque = marcados.concat(PRODUTOS.slice(8).filter(function (p) { return !p.destaque; })).slice(0, Math.min(8, Math.max(4, Math.ceil(marcados.length / 4) * 4)));
     $("#mais").innerHTML = destaque.map(function (p) { return card(p); }).join("");
 
     var man = PRODUTOS[12] || PRODUTOS[0];
@@ -381,6 +430,16 @@
     lb.classList.remove("is-open"); document.documentElement.style.overflow = "";
   }
 
+  function tabelaMedidas(p) {
+    var T = C.tabelaMedidas || {}, linhas = p.tamanhos.map(function (t) { return [t, T[t]]; }).filter(function (l) { return l[1]; });
+    if (!linhas.length) return "<p>Consulte as medidas deste modelo pelo WhatsApp.</p>";
+    var numerica = /^\d/.test(linhas[0][0]);
+    var cab = numerica ? ["Tam.", "Cintura", "Quadril"] : ["Tam.", "Busto", "Cintura", "Quadril"];
+    return '<div class="medidas"><table><thead><tr>' + cab.map(function (h) { return "<th>" + h + "</th>"; }).join("") + "</tr></thead><tbody>" +
+      linhas.map(function (l) { return "<tr><td>" + esc(l[0]) + "</td>" + l[1].map(function (v) { return "<td>" + esc(v) + "</td>"; }).join("") + "</tr>"; }).join("") +
+      "</tbody></table><p>Medidas do corpo em centímetros, como referência. A modelagem pode variar por peça: confirme no atendimento.</p></div>";
+  }
+
   function paginaProduto() {
     var p = POR_ID[qs("id")];
     var alvo = $("#pdp");
@@ -402,24 +461,65 @@
       "</div></div>" +
       '<div class="pdp__info"><p class="pdp__ref">Ref. ' + p.ref + (p.categoria ? " · " + CATEGORIAS[p.categoria] : "") + " · " + nomeEst + "</p>" +
       '<h1 class="pdp__title">' + esc(p.nome) + "</h1>" +
-      '<div class="pdp__price"><strong>Preço exclusivo de atacado</strong><span>Valores, tamanhos e cores disponíveis são enviados no atendimento pelo WhatsApp.</span></div>' +
-      '<div class="qty"><label for="q">Quantidade de peças</label><div class="stepper"><button type="button" data-q="-1" aria-label="Diminuir">−</button><input id="q" type="number" min="1" value="1"><button type="button" data-q="1" aria-label="Aumentar">+</button></div></div>' +
-      '<div class="field"><label class="sr-only" for="obs">Observação</label><textarea id="obs" placeholder="Observação (opcional): cores, tamanhos ou grade desejada"></textarea></div>' +
+      (p.descricao ? '<div class="pdp__desc">' + esc(p.descricao).replace(/\n/g, "<br>") + "</div>" : "") +
+      (p.esgotado ? '<p class="pdp__off">Modelo esgotado no momento. Fale com a gente para saber da reposição.</p>' : "") +
+      '<div class="pdp__price"><strong>Preço exclusivo de atacado</strong><span>Escolha a cor e monte a grade. Valores e disponibilidade são confirmados pelo WhatsApp.</span></div>' +
+      (p.cores.length ? '<fieldset class="opt"><legend>Cor: <b id="cor-nome">' + esc(p.cores[0]) + '</b></legend><div class="cores" role="radiogroup">' +
+        p.cores.map(function (c, i) { return '<button type="button" class="cor" role="radio" aria-checked="' + (i === 0) + '" data-cor="' + esc(c) + '" title="' + esc(c) + '">' + swatch(c) + '<span>' + esc(c) + "</span></button>"; }).join("") +
+        '<button type="button" class="cor cor--outra" role="radio" aria-checked="false" data-cor="A consultar"><span>Outra cor</span></button></div></fieldset>' : "") +
+      '<fieldset class="opt"><legend>Grade por tamanho <span class="opt__hint">Tamanhos ' + esc(p.tamanhos.join(", ")) + '</span></legend><div class="grade">' +
+        p.tamanhos.map(function (t) { return '<div class="grade__cel"><label for="g-' + esc(t) + '">' + esc(t) + '</label><div class="stepper stepper--sm"><button type="button" data-g="-1" aria-label="Menos ' + esc(t) + '">−</button><input id="g-' + esc(t) + '" data-t="' + esc(t) + '" type="number" min="0" value="0"><button type="button" data-g="1" aria-label="Mais ' + esc(t) + '">+</button></div><small class="grade__info"></small></div>'; }).join("") +
+      '</div><p class="grade__total" id="grade-total">Nenhuma peça selecionada</p></fieldset>' +
+      '<div class="field"><label class="sr-only" for="obs">Observação</label><textarea id="obs" placeholder="Observação (opcional)"></textarea></div>' +
       '<div class="pdp__btns"><button class="btn btn--dark btn--block" id="add">Adicionar à sacola</button>' +
       '<a class="btn btn--wpp btn--block" id="wpp" href="#" target="_blank" rel="noopener">' + I.wpp.replace("<svg", '<svg fill="currentColor"') + " Consultar este modelo</a></div>" +
       '<div class="pdp__details"><details open><summary>Como funciona</summary><p>Monte sua sacola com os modelos que você quer e envie tudo de uma vez pelo WhatsApp. Nossa equipe responde com a grade, as cores disponíveis, os valores de atacado e o prazo de envio.</p></details>' +
       "<details><summary>Condições de atacado</summary><ul><li>" + esc(C.pedidoMinimo || "") + "</li><li>Pagamento: " + esc(C.pagamento || "") + "</li><li>" + esc(C.envio || "") + "</li></ul></details>" +
+      "<details><summary>Tabela de medidas</summary>" + tabelaMedidas(p) + "</details>" +
       "<details><summary>Sobre as fotos</summary><p>As cores podem variar levemente conforme a tela. Peças sujeitas à disponibilidade de estoque.</p></details></div></div>";
 
-    var q = $("#q"), obs = $("#obs");
-    $$("[data-q]", alvo).forEach(function (b) { b.onclick = function () { q.value = Math.max(1, (parseInt(q.value, 10) || 1) + parseInt(b.getAttribute("data-q"), 10)); }; });
-    $("#add").onclick = function () { adicionar(p.id, q.value, obs.value.trim()); abrir("bag"); };
-    function atualizaWpp() {
-      var n = Math.max(1, parseInt(q.value, 10) || 1);
-      var msg = "Olá! Tenho interesse no modelo " + p.nome + " (coleção " + nomeEst + ") — " + plural(n, "peça", "peças") + "." + (obs.value.trim() ? "\nObs.: " + obs.value.trim() : "") + (linkProduto(p) ? "\n" + linkProduto(p) : "") + "\nPode me passar tamanhos, cores e valor de atacado?";
+    var obs = $("#obs"), cor = p.cores[0] || "";
+    function grade() { var g = {}; $$(".grade input", alvo).forEach(function (i) { var v = Math.max(0, parseInt(i.value, 10) || 0); i.value = v; if (v) g[i.getAttribute("data-t")] = v; }); return g; }
+    function totalGrade(g) { return Object.keys(g).reduce(function (t, k) { return t + g[k]; }, 0); }
+    function aplicarEstoque() {
+      $$(".grade__cel", alvo).forEach(function (cel) {
+        var inp = $("input", cel), t = inp.getAttribute("data-t"), est = p.esgotado ? 0 : estoqueDe(p, cor, t), info = $(".grade__info", cel);
+        var sem = est !== undefined && est <= 0;
+        cel.classList.toggle("is-off", sem);
+        $$("button, input", cel).forEach(function (x) { x.disabled = sem; });
+        if (sem) inp.value = 0;
+        if (est !== undefined && est > 0) { inp.max = est; if ((parseInt(inp.value, 10) || 0) > est) inp.value = est; } else inp.removeAttribute("max");
+        info.textContent = sem ? "Esgotado" : (est !== undefined && est <= 5 ? "Restam " + est : "");
+      });
+    }
+    function atualiza() {
+      aplicarEstoque();
+      var g = grade(), n = totalGrade(g);
+      $("#grade-total").textContent = n ? "Total: " + plural(n, "peça", "peças") + " (" + resumoGrade(g) + ")" : "Nenhuma peça selecionada";
+      var msg = "Olá! Tenho interesse no modelo " + p.nome + " (coleção " + nomeEst + ")." + (cor ? "\nCor: " + cor : "") +
+        (n ? "\nGrade: " + resumoGrade(g) + " — " + plural(n, "peça", "peças") : "") + (obs.value.trim() ? "\nObs.: " + obs.value.trim() : "") +
+        (linkProduto(p) ? "\n" + linkProduto(p) : "") + "\nPode me confirmar disponibilidade e valor de atacado?";
       $("#wpp").href = urlWpp(msg);
     }
-    q.oninput = obs.oninput = atualizaWpp; $$("[data-q]", alvo).forEach(function (b) { b.addEventListener("click", atualizaWpp); }); atualizaWpp();
+    $$(".cor", alvo).forEach(function (b) {
+      b.onclick = function () {
+        $$(".cor", alvo).forEach(function (x) { x.setAttribute("aria-checked", String(x === b)); });
+        cor = b.getAttribute("data-cor"); $("#cor-nome").textContent = cor; atualiza();
+      };
+    });
+    $$("[data-g]", alvo).forEach(function (b) {
+      b.onclick = function () { var i = $("input", b.parentNode), v = Math.max(0, (parseInt(i.value, 10) || 0) + parseInt(b.getAttribute("data-g"), 10)); if (i.max) v = Math.min(v, parseInt(i.max, 10)); i.value = v; atualiza(); };
+    });
+    $$(".grade input", alvo).forEach(function (i) { i.oninput = atualiza; });
+    obs.oninput = atualiza;
+    $("#add").onclick = function () {
+      var g = grade(), n = totalGrade(g);
+      if (p.esgotado) { toast("Este modelo está esgotado no momento"); return; }
+      if (!n) { toast("Escolha a quantidade em pelo menos um tamanho"); var f = $(".grade input", alvo); if (f) f.focus(); return; }
+      adicionar(p.id, n, obs.value.trim(), cor, g);
+      $$(".grade input", alvo).forEach(function (i) { i.value = 0; }); atualiza(); abrir("bag");
+    };
+    atualiza();
 
     // galeria
     var main = $("#gmain");
@@ -459,12 +559,27 @@
   }
 
   /* ---------------- iniciar ---------------- */
-  renderChrome();
-  if (PAGE === "home") paginaHome();
-  if (PAGE === "catalogo") paginaCatalogo();
-  if (PAGE === "produto") paginaProduto();
-  if (PAGE === "comprar") paginaComprar();
-  atualizarContador();
-  observar(document);
-  window.addEventListener("storage", atualizarContador);
+  function iniciar() {
+    renderChrome();
+    if (PAGE === "home") paginaHome();
+    if (PAGE === "catalogo") paginaCatalogo();
+    if (PAGE === "produto") paginaProduto();
+    if (PAGE === "comprar") paginaComprar();
+    atualizarContador();
+    observar(document);
+    window.addEventListener("storage", atualizarContador);
+  }
+  function usarEstatico() { definirProdutos((window.BELLA_PRODUTOS || []).map(doEstatico)); iniciar(); }
+  // O catálogo gerenciado pelo admin fica em /api/catalogo; sem ele (ou abrindo o arquivo direto), usa js/produtos.js
+  if (/^https?:/.test(location.protocol) && window.fetch) {
+    var pronto = false;
+    var limite = setTimeout(function () { if (!pronto) { pronto = true; usarEstatico(); } }, 6000);
+    fetch("/api/catalogo", { cache: "no-store" }).then(function (r) { return r.ok ? r.json() : null; }).then(function (d) {
+      if (pronto) return; pronto = true; clearTimeout(limite);
+      if (d && d.produtos && d.produtos.length) {
+        if (d.config) Object.keys(d.config).forEach(function (k) { if (d.config[k] !== "" && d.config[k] != null) C[k] = d.config[k]; });
+        definirProdutos(d.produtos); iniciar();
+      } else usarEstatico();
+    }).catch(function () { if (!pronto) { pronto = true; clearTimeout(limite); usarEstatico(); } });
+  } else usarEstatico();
 })();

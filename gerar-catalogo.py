@@ -51,13 +51,15 @@ def main():
         with ThreadPoolExecutor(4) as ex:
             list(ex.map(lambda t: converter(*t), pendentes))
 
-    # categorias.csv: id,ref,categoria,tipo (editável em Excel/Numbers)
+    # categorias.csv: id,ref,categoria,tipo,tamanhos,cores (listas separadas por |) (editável em Excel/Numbers)
     cats = {}
     caminho_cat = os.path.join(SITE, "categorias.csv")
     if os.path.exists(caminho_cat):
         with open(caminho_cat, encoding="utf-8") as fh:
             for row in csv.DictReader(fh):
-                cats[row["id"]] = (row["categoria"].strip(), row["tipo"].strip())
+                cats[row["id"]] = (row["categoria"].strip(), row["tipo"].strip(),
+                                   [x.strip() for x in (row.get("tamanhos") or "").split("|") if x.strip()],
+                                   [x.strip() for x in (row.get("cores") or "").split("|") if x.strip()])
 
     produtos = []
     sem_categoria = []
@@ -76,10 +78,15 @@ def main():
             posts.setdefault((m.group(1), m.group(2)), []).append(f[:-5])
         for i, ((data, codigo), fotos) in enumerate(sorted(posts.items())):
             ref = "%s%03d" % (pre, i + 1)
-            c, t = cats.get(codigo, ("", ""))
+            c, t, z, k = cats.get(codigo, ("", "", [], []))
             if codigo not in cats:
                 sem_categoria.append((codigo, ref))
-            produtos.append({"id": codigo, "ref": ref, "e": est, "c": c, "t": t, "d": data, "f": sorted(fotos)})
+            item = {"id": codigo, "ref": ref, "e": est, "c": c, "t": t, "d": data, "f": sorted(fotos)}
+            if z:
+                item["z"] = z
+            if k:
+                item["k"] = k
+            produtos.append(item)
 
     with open(os.path.join(SITE, "js", "produtos.js"), "w", encoding="utf-8") as fh:
         fh.write("/* GERADO AUTOMATICAMENTE por gerar-catalogo.py — não edite à mão */\n")
@@ -88,7 +95,7 @@ def main():
         with open(caminho_cat, "a", encoding="utf-8", newline="") as fh:
             w = csv.writer(fh)
             for codigo, ref in sem_categoria:
-                w.writerow([codigo, ref, "", ""])
+                w.writerow([codigo, ref, "", "", "", ""])
         print("%d modelos novos sem categoria: preencha a coluna 'categoria' em categorias.csv e rode de novo." % len(sem_categoria))
     print("Catálogo atualizado: %d modelos." % len(produtos))
 
