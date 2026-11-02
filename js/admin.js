@@ -59,6 +59,8 @@
       estado.vazio = !!d.vazio || !estado.produtos.length;
       tela("tela-app");
       renderVazio(); renderLista(); preencherConfig();
+      // primeira vez: traz sozinho os modelos que já estão no site
+      if (estado.vazio && (window.BELLA_PRODUTOS || []).length && !importando) $("#btn-importar").click();
     }).catch(function (e) {
       if (e.status === 503) mostrarAviso(e.message + " Avise o suporte técnico para concluir a configuração.");
       else if (e.status !== 401 && !/Sessão/.test(e.message)) { mostrarAviso("Não foi possível abrir o painel: " + e.message); }
@@ -100,7 +102,9 @@
     $("#qtd-estatico").textContent = est.length;
     $("#estado-vazio").hidden = !(estado.vazio && est.length);
   }
+  var importando = false;
   $("#btn-importar").addEventListener("click", function () {
+    if (importando) return; importando = true;
     var btn = this, lista = (window.BELLA_PRODUTOS || []).map(doEstatico);
     var cfg = {};
     ["whatsapp", "whatsappExibicao", "instagram", "email", "endereco", "horario", "pedidoMinimo", "pagamento", "envio", "avisos"].forEach(function (k) {
@@ -110,7 +114,7 @@
     api("PUT", "/api/admin/catalogo", { produtos: lista, config: cfg }).then(function (d) {
       toast(d.total + " modelos importados.");
       return carregar();
-    }).catch(function (e) { toast(e.message, true); }).then(function () { btn.disabled = false; btn.textContent = "Importar catálogo atual"; });
+    }).catch(function (e) { toast(e.message, true); }).then(function () { importando = false; btn.disabled = false; btn.textContent = "Importar catálogo atual"; });
   });
 
   /* ---------------- lista ---------------- */
