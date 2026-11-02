@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Catálogo | Atacado Bella Rô</title>
+<meta name="description" content="Todos os modelos do Atacado Bella Rô por coleção: primavera, verão, outono e inverno.">
+<meta name="theme-color" content="#1E1E1E">
+<meta property="og:title" content="Catálogo | Atacado Bella Rô">
+<meta property="og:description" content="Todos os modelos do Atacado Bella Rô por coleção: primavera, verão, outono e inverno.">
+<meta property="og:type" content="website">
+<link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Jost:wght@200;300;400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body data-page="catalogo">
+<div id="site-header"></div>
+<main>
+  <div class="wrap page-head">
+    <p class="crumbs"><a href="index.html">Início</a> / <span id="cat-crumb">Catálogo</span></p>
+    <h1 class="h2" id="cat-titulo">Todos os modelos</h1>
+    <p>Escolha os modelos, monte sua sacola e envie o pedido pelo WhatsApp.</p>
+  </div>
+  <div class="toolbar">
+    <div class="wrap toolbar__row">
+      <div class="chips" id="chips" role="group" aria-label="Filtrar por categoria"></div>
+      <div class="toolbar__right">
+        <span id="cat-count"></span>
+        <label class="sr-only" for="estacao">Coleção</label>
+        <select id="estacao"></select>
+        <label class="sr-only" for="ordem">Ordenar</label>
+        <select id="ordem"><option value="recentes">Mais recentes</option><option value="antigas">Mais antigos</option></select>
+      </div>
+    </div>
+  </div>
+  <div class="wrap" style="padding-bottom:96px">
+    <div class="grid" id="grid"></div>
+    <p class="empty" id="empty" hidden>Nenhum modelo nesta coleção ainda.</p>
+    <div class="more" id="more" hidden><small id="more-info"></small><button class="btn btn--light" id="more-btn">Carregar mais</button></div>
+  </div>
+</main>
+<div id="site-footer"></div>
+<script src="js/config.js"></script>
+<script src="js/produtos.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>
