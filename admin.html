@@ -5,199 +5,315 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="robots" content="noindex, nofollow">
 <title>Painel | Atacado Bella Rô</title>
-<meta name="theme-color" content="#1E1E1E">
+<meta name="theme-color" content="#F6F4F1">
 <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Jost:wght@300;400;500;600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="css/admin.css">
 </head>
 <body>
 
+<!-- Ícones (traço 1.6, 24px) -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></symbol>
+    <symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></symbol>
+    <symbol id="i-back" viewBox="0 0 24 24"><path d="M19 12H5M12 19l-7-7 7-7"/></symbol>
+    <symbol id="i-left" viewBox="0 0 24 24"><path d="m15 18-6-6 6-6"/></symbol>
+    <symbol id="i-right" viewBox="0 0 24 24"><path d="m9 18 6-6-6-6"/></symbol>
+    <symbol id="i-x" viewBox="0 0 24 24"><path d="M18 6 6 18M6 6l12 12"/></symbol>
+    <symbol id="i-external" viewBox="0 0 24 24"><path d="M15 3h6v6M10 14 21 3M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/></symbol>
+    <symbol id="i-logout" viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"/></symbol>
+    <symbol id="i-tag" viewBox="0 0 24 24"><path d="M20.6 13.4 13.4 20.6a2 2 0 0 1-2.8 0L3 13V3h10l7.6 7.6a2 2 0 0 1 0 2.8z"/><circle cx="7.5" cy="7.5" r="1.5"/></symbol>
+    <symbol id="i-sliders" viewBox="0 0 24 24"><path d="M4 21v-7M4 10V3M12 21v-9M12 8V3M20 21v-5M20 12V3M1 14h6M9 8h6M17 16h6"/></symbol>
+    <symbol id="i-image" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-5-5L5 21"/></symbol>
+    <symbol id="i-upload" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M17 8l-5-5-5 5M12 3v12"/></symbol>
+    <symbol id="i-trash" viewBox="0 0 24 24"><path d="M3 6h18M8 6V4h8v2M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6M10 11v6M14 11v6"/></symbol>
+    <symbol id="i-star" viewBox="0 0 24 24"><path d="m12 2 3.1 6.3 6.9 1-5 4.9 1.2 6.8-6.2-3.2-6.2 3.2L7 14.2 2 9.3l6.9-1z"/></symbol>
+    <symbol id="i-eye" viewBox="0 0 24 24"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></symbol>
+    <symbol id="i-check" viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></symbol>
+    <symbol id="i-alert" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/></symbol>
+    <symbol id="i-box" viewBox="0 0 24 24"><path d="M21 8 12 3 3 8v8l9 5 9-5z"/><path d="m3 8 9 5 9-5M12 13v8"/></symbol>
+  </defs>
+</svg>
+
+<!-- CARREGANDO -->
+<div class="carregando" id="tela-carregando">
+  <img src="assets/bella-ro-logo-preto.svg" alt="Atacado Bella Rô" class="carregando__logo">
+  <span class="spinner" aria-label="Carregando"></span>
+</div>
+
 <!-- LOGIN -->
 <section class="login" id="tela-login" hidden>
-  <form class="login__box" id="form-login">
-    <img src="assets/bella-ro-logo-preto.svg" alt="Atacado Bella Rô" class="login__logo">
-    <p class="login__sub">Painel de administração</p>
-    <label class="campo">
-      <span>Senha</span>
-      <input type="password" name="senha" autocomplete="current-password" required autofocus>
-    </label>
-    <p class="erro" id="login-erro" role="alert"></p>
-    <button class="btn btn--escuro btn--largo" type="submit">Entrar</button>
-  </form>
+  <div class="login__foto" aria-hidden="true">
+    <img src="img/verao/l/2026-02-03_DUTeb8eEWNr_01.webp" alt="">
+  </div>
+  <div class="login__lado">
+    <form class="login__box" id="form-login">
+      <img src="assets/bella-ro-logo-preto.svg" alt="Atacado Bella Rô" class="login__logo">
+      <div>
+        <h1 class="login__titulo">Entrar no painel</h1>
+        <p class="login__sub">Gerencie produtos, estoque e as informações do site.</p>
+      </div>
+      <div class="campo">
+        <label for="senha">Senha</label>
+        <div class="senha">
+          <input type="password" id="senha" name="senha" autocomplete="current-password" required>
+          <button type="button" class="senha__ver" id="senha-ver" aria-label="Mostrar senha"><svg class="i"><use href="#i-eye"/></svg></button>
+        </div>
+        <p class="campo__erro" id="login-erro" role="alert"></p>
+      </div>
+      <button class="btn btn--primario btn--largo" type="submit">Entrar</button>
+    </form>
+  </div>
 </section>
 
 <!-- AVISO DE CONFIGURAÇÃO -->
-<section class="login" id="tela-aviso" hidden>
-  <div class="login__box">
-    <img src="assets/bella-ro-logo-preto.svg" alt="Atacado Bella Rô" class="login__logo">
-    <p class="login__sub">Painel de administração</p>
-    <p class="aviso" id="aviso-texto"></p>
+<section class="login login--simples" id="tela-aviso" hidden>
+  <div class="login__lado">
+    <div class="login__box">
+      <img src="assets/bella-ro-logo-preto.svg" alt="Atacado Bella Rô" class="login__logo">
+      <div class="alerta alerta--ambar"><svg class="i"><use href="#i-alert"/></svg><p id="aviso-texto"></p></div>
+    </div>
   </div>
 </section>
 
 <!-- PAINEL -->
 <div class="app" id="tela-app" hidden>
-  <header class="topo">
-    <img src="assets/bella-ro-logo-branco.svg" alt="Bella Rô" class="topo__logo">
-    <nav class="abas" role="tablist">
-      <button class="aba is-on" data-aba="produtos" role="tab">Produtos</button>
-      <button class="aba" data-aba="config" role="tab">Configurações</button>
+  <aside class="lateral">
+    <img src="assets/bella-ro-logo-preto.svg" alt="Atacado Bella Rô" class="lateral__logo">
+    <nav class="nav" aria-label="Seções do painel">
+      <button class="nav__item is-on" data-aba="produtos"><svg class="i"><use href="#i-tag"/></svg><span>Produtos</span></button>
+      <button class="nav__item" data-aba="config"><svg class="i"><use href="#i-sliders"/></svg><span>Configurações</span></button>
     </nav>
-    <div class="topo__acoes">
-      <a class="topo__link" href="/" target="_blank" rel="noopener">Ver site</a>
-      <button class="topo__link" id="btn-sair">Sair</button>
+    <div class="lateral__rodape">
+      <a class="nav__item nav__item--sec" href="/" target="_blank" rel="noopener"><svg class="i"><use href="#i-external"/></svg><span>Ver site</span></a>
+      <button class="nav__item nav__item--sec" data-sair><svg class="i"><use href="#i-logout"/></svg><span>Sair</span></button>
+    </div>
+  </aside>
+
+  <header class="topo-mob">
+    <img src="assets/bella-ro-logo-preto.svg" alt="Atacado Bella Rô" class="topo-mob__logo">
+    <div class="topo-mob__acoes">
+      <a class="btn-icone" href="/" target="_blank" rel="noopener" aria-label="Ver site"><svg class="i"><use href="#i-external"/></svg></a>
+      <button class="btn-icone" data-sair aria-label="Sair"><svg class="i"><use href="#i-logout"/></svg></button>
     </div>
   </header>
 
   <!-- ABA PRODUTOS -->
   <main class="pagina" id="aba-produtos">
-    <div class="vazio" id="estado-vazio" hidden>
-      <h2>O painel ainda está vazio</h2>
-      <p>Traga os <strong id="qtd-estatico">0</strong> modelos que já estão no site para cá. Depois disso, tudo o que você mudar aqui aparece no site.</p>
-      <button class="btn btn--escuro" id="btn-importar">Importar catálogo atual</button>
-    </div>
+    <header class="pagina__topo">
+      <div>
+        <h1 class="pagina__titulo">Produtos</h1>
+        <p class="pagina__sub" id="resumo">&nbsp;</p>
+      </div>
+      <button class="btn btn--primario" id="btn-novo"><svg class="i"><use href="#i-plus"/></svg><span>Novo produto</span></button>
+    </header>
+
+    <section class="importar" id="estado-vazio" hidden>
+      <svg class="i i--grande"><use href="#i-box"/></svg>
+      <div>
+        <h2>Trazer os modelos do site para o painel</h2>
+        <p>Os <strong id="qtd-estatico">0</strong> modelos que já estão no site entram aqui. Depois disso, o que você mudar no painel aparece no site.</p>
+      </div>
+      <button class="btn btn--primario" id="btn-importar">Importar agora</button>
+    </section>
 
     <div id="lista-wrap">
-      <div class="barra">
-        <input type="search" id="busca" placeholder="Buscar por referência, tipo ou cor" aria-label="Buscar">
-        <select id="f-estacao" aria-label="Coleção"><option value="">Todas as coleções</option></select>
-        <select id="f-categoria" aria-label="Categoria"><option value="">Todas as categorias</option></select>
-        <select id="f-status" aria-label="Situação">
-          <option value="">Todas as situações</option>
-          <option value="visivel">No site</option>
-          <option value="oculto">Ocultos</option>
-          <option value="esgotado">Esgotados</option>
-          <option value="destaque">Em destaque</option>
-          <option value="sem-estoque">Sem estoque cadastrado</option>
-          <option value="baixo">Estoque baixo (5 ou menos)</option>
-        </select>
-        <button class="btn btn--escuro" id="btn-novo">+ Novo produto</button>
+      <div class="filtros" role="group" aria-label="Situação">
+        <div class="chips-filtro" id="f-status"></div>
       </div>
-      <p class="contagem" id="contagem"></p>
-      <ul class="lista" id="lista"></ul>
-      <button class="btn btn--linha btn--mais" id="btn-mais" hidden>Mostrar mais</button>
+      <div class="ferramentas">
+        <label class="busca">
+          <svg class="i"><use href="#i-search"/></svg>
+          <input type="search" id="busca" placeholder="Buscar por referência, tipo ou cor" aria-label="Buscar produtos">
+        </label>
+        <select id="f-estacao" class="select" aria-label="Coleção"><option value="">Coleções</option></select>
+        <select id="f-categoria" class="select" aria-label="Categoria"><option value="">Categorias</option></select>
+      </div>
+
+      <div class="tabela" role="table" aria-label="Lista de produtos">
+        <div class="tabela__cab" role="row">
+          <span role="columnheader">Produto</span>
+          <span role="columnheader">Categoria</span>
+          <span role="columnheader">Cores</span>
+          <span role="columnheader">Estoque</span>
+          <span role="columnheader">Situação</span>
+        </div>
+        <ul class="lista" id="lista" role="rowgroup"></ul>
+      </div>
+      <div class="lista__pe">
+        <p class="contagem" id="contagem"></p>
+        <button class="btn btn--sec" id="btn-mais" hidden>Mostrar mais</button>
+      </div>
     </div>
   </main>
 
   <!-- ABA CONFIGURAÇÕES -->
-  <main class="pagina" id="aba-config" hidden>
-    <form class="cfg" id="form-config">
-      <h2 class="titulo">Contato e regras do atacado</h2>
-      <p class="ajuda">Essas informações aparecem no rodapé, na página do produto e em "Como comprar".</p>
-      <div class="grade-campos">
-        <label class="campo"><span>WhatsApp (DDI + DDD + número)</span><input name="whatsapp" inputmode="numeric" placeholder="5511999998888"></label>
-        <label class="campo"><span>WhatsApp como aparece no site</span><input name="whatsappExibicao" placeholder="(11) 99999-8888"></label>
-        <label class="campo"><span>Instagram (sem @)</span><input name="instagram" placeholder="atacadobellaro"></label>
-        <label class="campo"><span>E-mail</span><input name="email" type="email"></label>
-        <label class="campo campo--largo"><span>Endereço da loja / showroom</span><input name="endereco"></label>
-        <label class="campo campo--largo"><span>Horário de atendimento</span><input name="horario"></label>
-        <label class="campo"><span>Pedido mínimo</span><input name="pedidoMinimo" placeholder="Pedido mínimo de 10 peças"></label>
-        <label class="campo"><span>Formas de pagamento</span><input name="pagamento"></label>
-        <label class="campo campo--largo"><span>Envio</span><input name="envio"></label>
-        <label class="campo campo--largo"><span>Avisos da barra do topo (um por linha)</span><textarea name="avisos" rows="4"></textarea></label>
+  <main class="pagina pagina--estreita" id="aba-config" hidden>
+    <header class="pagina__topo">
+      <div>
+        <h1 class="pagina__titulo">Configurações</h1>
+        <p class="pagina__sub">Informações que aparecem no rodapé, na página do produto e em “Como comprar”.</p>
       </div>
-      <div class="cfg__rodape">
-        <button class="btn btn--escuro" type="submit">Salvar configurações</button>
+    </header>
+
+    <form id="form-config" class="pilha">
+      <section class="painel">
+        <header class="painel__cab"><h2>Contato</h2><p>Como as lojistas falam com você.</p></header>
+        <div class="campos campos--2">
+          <div class="campo"><label for="c-wpp">WhatsApp</label><input id="c-wpp" name="whatsapp" inputmode="numeric" placeholder="5511999998888"><small>Com 55 e DDD, só números.</small></div>
+          <div class="campo"><label for="c-wppx">WhatsApp como aparece no site</label><input id="c-wppx" name="whatsappExibicao" placeholder="(11) 99999-8888"></div>
+          <div class="campo"><label for="c-ig">Instagram</label><div class="prefixo"><span>@</span><input id="c-ig" name="instagram" placeholder="atacadobellaro"></div></div>
+          <div class="campo"><label for="c-mail">E-mail</label><input id="c-mail" name="email" type="email" placeholder="contato@..."></div>
+        </div>
+      </section>
+
+      <section class="painel">
+        <header class="painel__cab"><h2>Loja</h2><p>Onde e quando atender.</p></header>
+        <div class="campos">
+          <div class="campo"><label for="c-end">Endereço da loja ou showroom</label><input id="c-end" name="endereco"></div>
+          <div class="campo"><label for="c-hor">Horário de atendimento</label><input id="c-hor" name="horario"></div>
+        </div>
+      </section>
+
+      <section class="painel">
+        <header class="painel__cab"><h2>Regras do atacado</h2><p>Aparecem na página inicial, no produto e em “Como comprar”.</p></header>
+        <div class="campos campos--2">
+          <div class="campo"><label for="c-min">Pedido mínimo</label><input id="c-min" name="pedidoMinimo" placeholder="Pedido mínimo de 10 peças"></div>
+          <div class="campo"><label for="c-pag">Formas de pagamento</label><input id="c-pag" name="pagamento"></div>
+          <div class="campo campo--largo"><label for="c-env">Envio</label><input id="c-env" name="envio"></div>
+        </div>
+      </section>
+
+      <section class="painel">
+        <header class="painel__cab"><h2>Barra de avisos</h2><p>Mensagens que passam na faixa preta do topo do site. Uma por linha.</p></header>
+        <div class="campo"><label for="c-av" class="sr-only">Avisos</label><textarea id="c-av" name="avisos" rows="4"></textarea></div>
+      </section>
+
+      <div class="barra-salvar" id="cfg-barra">
+        <span class="barra-salvar__txt" id="cfg-estado">Tudo salvo</span>
+        <button class="btn btn--primario" type="submit">Salvar configurações</button>
       </div>
     </form>
   </main>
+
+  <nav class="abas-mob" aria-label="Seções do painel">
+    <button class="abas-mob__item is-on" data-aba="produtos"><svg class="i"><use href="#i-tag"/></svg><span>Produtos</span></button>
+    <button class="abas-mob__item" data-aba="config"><svg class="i"><use href="#i-sliders"/></svg><span>Configurações</span></button>
+  </nav>
 </div>
 
 <!-- EDITOR DE PRODUTO -->
 <div class="gaveta" id="gaveta" hidden>
   <div class="gaveta__fundo" data-fechar></div>
-  <form class="gaveta__painel" id="form-produto" novalidate>
+  <form class="gaveta__painel" id="form-produto" novalidate aria-labelledby="ed-titulo">
     <header class="gaveta__topo">
-      <button type="button" class="icone" data-fechar aria-label="Fechar">&larr;</button>
-      <h2 id="ed-titulo">Produto</h2>
-      <a class="topo__link topo__link--escuro" id="ed-ver" target="_blank" rel="noopener">Ver no site</a>
+      <button type="button" class="btn-icone" data-fechar aria-label="Fechar"><svg class="i"><use href="#i-back"/></svg></button>
+      <div class="gaveta__titulos">
+        <h2 id="ed-titulo">Produto</h2>
+        <p id="ed-sub"></p>
+      </div>
+      <a class="btn btn--sec btn--peq" id="ed-ver" target="_blank" rel="noopener"><svg class="i"><use href="#i-external"/></svg><span>Ver no site</span></a>
     </header>
 
     <div class="gaveta__corpo">
-      <section class="bloco">
-        <h3>Fotos</h3>
-        <p class="ajuda">A primeira foto é a capa. Use as setas para mudar a ordem.</p>
+      <section class="painel">
+        <header class="painel__cab"><h2>Fotos</h2><p>A primeira é a capa. Use as setas para mudar a ordem.</p></header>
         <ul class="fotos" id="ed-fotos"></ul>
-        <label class="btn btn--linha btn--arquivo">
-          + Adicionar fotos
-          <input type="file" id="ed-arquivo" accept="image/*" multiple>
-        </label>
-        <p class="ajuda" id="ed-envio"></p>
       </section>
 
-      <section class="bloco">
-        <h3>Informações</h3>
-        <div class="grade-campos">
-          <label class="campo"><span>Tipo de peça</span><input name="tipo" list="tipos" placeholder="Vestido" required></label>
-          <label class="campo"><span>Referência</span><input name="ref" required></label>
-          <label class="campo"><span>Categoria</span><select name="categoria" id="ed-categoria"></select></label>
-          <label class="campo"><span>Coleção</span><select name="estacao" id="ed-estacao"></select></label>
-          <label class="campo"><span>Data de lançamento</span><input name="data" type="date"></label>
-          <label class="campo campo--largo"><span>Descrição</span><textarea name="descricao" rows="4" placeholder="Tecido, caimento, detalhes, composição…"></textarea></label>
+      <section class="painel">
+        <header class="painel__cab"><h2>Informações</h2></header>
+        <div class="campos campos--2">
+          <div class="campo"><label for="e-tipo">Tipo de peça</label><input id="e-tipo" name="tipo" list="tipos" placeholder="Vestido" required><p class="campo__erro" data-erro="tipo"></p></div>
+          <div class="campo"><label for="e-ref">Referência</label><input id="e-ref" name="ref" required autocapitalize="characters"><p class="campo__erro" data-erro="ref"></p></div>
+          <div class="campo"><label for="ed-categoria">Categoria</label><select id="ed-categoria" name="categoria" class="select"></select></div>
+          <div class="campo"><label for="ed-estacao">Coleção</label><select id="ed-estacao" name="estacao" class="select"></select></div>
+          <div class="campo"><label for="e-data">Lançamento</label><input id="e-data" name="data" type="date"><small>Peças dos últimos dias aparecem como “Novo”.</small></div>
+          <div class="campo campo--largo"><label for="e-desc">Descrição</label><textarea id="e-desc" name="descricao" rows="4" placeholder="Tecido, caimento, detalhes, composição…"></textarea></div>
         </div>
         <datalist id="tipos"></datalist>
       </section>
 
-      <section class="bloco">
-        <h3>Cores</h3>
-        <div class="chips" id="ed-cores"></div>
-        <div class="add-linha">
-          <input id="ed-cor-nova" list="cores-sugestao" placeholder="Nova cor (ex.: Preto)">
-          <button type="button" class="btn btn--linha" id="ed-cor-add">Adicionar</button>
+      <section class="painel">
+        <header class="painel__cab"><h2>Cores e tamanhos</h2><p>Definem as opções que a lojista escolhe no site.</p></header>
+        <div class="grupo">
+          <h3 class="grupo__tit">Cores</h3>
+          <div class="chips" id="ed-cores"></div>
+          <div class="add-linha">
+            <input id="ed-cor-nova" list="cores-sugestao" placeholder="Nova cor" aria-label="Nova cor">
+            <button type="button" class="btn btn--sec" id="ed-cor-add"><svg class="i"><use href="#i-plus"/></svg><span>Adicionar</span></button>
+          </div>
+          <datalist id="cores-sugestao"></datalist>
         </div>
-        <datalist id="cores-sugestao"></datalist>
+        <div class="grupo">
+          <h3 class="grupo__tit">Tamanhos</h3>
+          <div class="chips" id="ed-tams"></div>
+          <div class="add-linha">
+            <input id="ed-tam-novo" placeholder="Novo tamanho" aria-label="Novo tamanho">
+            <button type="button" class="btn btn--sec" id="ed-tam-add"><svg class="i"><use href="#i-plus"/></svg><span>Adicionar</span></button>
+          </div>
+          <div class="presets">
+            <span>Grades prontas</span>
+            <button type="button" class="preset" data-grade="P,M,G,GG">P ao GG</button>
+            <button type="button" class="preset" data-grade="PP,P,M,G,GG">PP ao GG</button>
+            <button type="button" class="preset" data-grade="36,38,40,42,44,46">36 ao 46</button>
+            <button type="button" class="preset" data-grade="Único">Único</button>
+          </div>
+        </div>
       </section>
 
-      <section class="bloco">
-        <h3>Tamanhos</h3>
-        <div class="chips" id="ed-tams"></div>
-        <div class="add-linha">
-          <input id="ed-tam-novo" placeholder="Novo tamanho (ex.: 48)">
-          <button type="button" class="btn btn--linha" id="ed-tam-add">Adicionar</button>
-        </div>
-        <div class="presets">
-          <span>Grades prontas:</span>
-          <button type="button" class="preset" data-grade="P,M,G,GG">P ao GG</button>
-          <button type="button" class="preset" data-grade="PP,P,M,G,GG">PP ao GG</button>
-          <button type="button" class="preset" data-grade="36,38,40,42,44,46">36 ao 46</button>
-          <button type="button" class="preset" data-grade="Único">Tamanho único</button>
-        </div>
-      </section>
-
-      <section class="bloco">
-        <h3>Estoque</h3>
-        <p class="ajuda">Quantidade de peças por cor e tamanho. Deixe em branco para não controlar o estoque daquele item. Com 0, o tamanho aparece como esgotado no site.</p>
+      <section class="painel">
+        <header class="painel__cab">
+          <h2>Estoque</h2>
+          <p>Peças por cor e tamanho. Em branco, o item não tem controle de estoque. Com 0, aparece como esgotado no site.</p>
+        </header>
         <div class="estoque" id="ed-estoque"></div>
         <div class="estoque__acoes">
-          <input type="number" min="0" id="ed-todos" placeholder="Qtd." aria-label="Quantidade para todos">
-          <button type="button" class="btn btn--linha" id="ed-todos-btn">Preencher todos</button>
-          <button type="button" class="btn btn--linha" id="ed-limpar-btn">Limpar estoque</button>
+          <div class="add-linha add-linha--curta">
+            <input type="number" min="0" id="ed-todos" placeholder="Qtd." aria-label="Quantidade para todos" inputmode="numeric">
+            <button type="button" class="btn btn--sec" id="ed-todos-btn">Preencher todos</button>
+          </div>
+          <button type="button" class="btn btn--texto" id="ed-limpar-btn">Limpar quantidades</button>
         </div>
       </section>
 
-      <section class="bloco">
-        <h3>No site</h3>
-        <label class="chave"><input type="checkbox" name="visivel"><span>Mostrar no site</span></label>
-        <label class="chave"><input type="checkbox" name="esgotado"><span>Marcar como esgotado</span></label>
-        <label class="chave"><input type="checkbox" name="destaque"><span>Destacar na página inicial</span></label>
-      </section>
-
-      <section class="bloco bloco--perigo" id="ed-zona-excluir">
-        <button type="button" class="btn btn--perigo" id="ed-excluir">Excluir produto</button>
+      <section class="painel">
+        <header class="painel__cab"><h2>No site</h2></header>
+        <div class="opcoes">
+          <label class="opcao"><span class="opcao__txt"><strong>Mostrar no site</strong><small>Desligado, o produto fica só no painel.</small></span><input type="checkbox" name="visivel" class="chave"></label>
+          <label class="opcao"><span class="opcao__txt"><strong>Esgotado</strong><small>Mostra a etiqueta “Esgotado” e bloqueia o pedido.</small></span><input type="checkbox" name="esgotado" class="chave"></label>
+          <label class="opcao"><span class="opcao__txt"><strong>Destaque</strong><small>Aparece primeiro em “Destaques” na página inicial.</small></span><input type="checkbox" name="destaque" class="chave"></label>
+        </div>
       </section>
     </div>
 
     <footer class="gaveta__rodape">
-      <p class="erro" id="ed-erro" role="alert"></p>
-      <button type="button" class="btn btn--linha" data-fechar>Cancelar</button>
-      <button type="submit" class="btn btn--escuro" id="ed-salvar">Salvar</button>
+      <div class="alerta alerta--erro gaveta__erro" id="ed-erro" role="alert" hidden><svg class="i"><use href="#i-alert"/></svg><p></p></div>
+      <button type="button" class="btn btn--perigo-texto" id="ed-excluir"><svg class="i"><use href="#i-trash"/></svg><span>Excluir</span></button>
+      <span class="espaco"></span>
+      <button type="button" class="btn btn--sec" data-fechar>Cancelar</button>
+      <button type="submit" class="btn btn--primario" id="ed-salvar">Salvar</button>
     </footer>
   </form>
 </div>
 
-<div class="toast" id="toast" role="status" aria-live="polite"></div>
+<!-- CONFIRMAÇÃO -->
+<div class="dialogo" id="dialogo" hidden role="dialog" aria-modal="true" aria-labelledby="dlg-titulo">
+  <div class="dialogo__fundo"></div>
+  <div class="dialogo__caixa">
+    <h2 id="dlg-titulo"></h2>
+    <p id="dlg-texto"></p>
+    <div class="dialogo__acoes">
+      <button type="button" class="btn btn--sec" id="dlg-nao">Cancelar</button>
+      <button type="button" class="btn btn--primario" id="dlg-sim">Confirmar</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast" role="status" aria-live="polite"><svg class="i"><use href="#i-check"/></svg><span></span></div>
 
 <script src="js/config.js"></script>
 <script src="js/produtos.js"></script>
