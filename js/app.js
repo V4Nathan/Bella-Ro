@@ -278,14 +278,14 @@
   /* ---------------- card de produto ---------------- */
   function card(p, eager) {
     var alt = p.fotos.length > 1 ? '<img class="alt" src="' + p.thumb(1) + '" alt="" loading="lazy">' : "";
-    return '<article class="card reveal"><a class="card__media" href="produto.html?id=' + p.id + '" aria-label="' + esc(p.nome) + '">' +
+    return '<article class="card reveal"><div class="card__foto"><a class="card__media" href="produto.html?id=' + p.id + '" aria-label="' + esc(p.nome) + '">' +
       '<img src="' + p.thumb() + '" alt="' + esc(p.nome) + " — coleção " + ESTACOES[p.estacao].nome + '" loading="' + (eager ? "eager" : "lazy") + '">' + alt +
       (p.esgotado ? '<span class="card__tag card__tag--off">Esgotado</span>' : ehNovo(p) ? '<span class="card__tag">Novo</span>' : "") +
       (p.fotos.length > 1 ? '<span class="card__count">' + p.fotos.length + " fotos</span>" : "") +
-      '</a><button class="card__quick" data-add="' + p.id + '">Adicionar à sacola</button>' +
+      '</a><button class="card__quick" data-add="' + p.id + '" aria-label="Adicionar ' + esc(p.nome) + ' à sacola"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 8h14l-1 13H6z"/><path d="M9 8V6a3 3 0 0 1 6 0v2"/></svg><span>Adicionar</span></button></div>' +
       '<div class="card__info"><a class="card__name" href="produto.html?id=' + p.id + '">' + esc(p.nome) + '</a><span class="card__meta">' + (p.categoria ? CATEGORIAS[p.categoria] + " · " : "") + ESTACOES[p.estacao].nome + "</span>" +
       (p.cores.length ? '<span class="card__cores">' + p.cores.map(swatch).join("") + '<span class="card__tams">' + esc(p.tamanhos[0] + (p.tamanhos.length > 1 ? " ao " + p.tamanhos[p.tamanhos.length - 1] : "")) + "</span></span>" : "") +
-      '<button class="card__cta" data-add="' + p.id + '">+ Adicionar à sacola</button></div></article>';
+      "</div></article>";
   }
   document.addEventListener("click", function (ev) {
     var b = ev.target.closest("[data-add]");

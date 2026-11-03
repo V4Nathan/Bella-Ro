@@ -142,7 +142,7 @@ input,select,textarea{font:inherit;color:inherit}
 @media (max-width:700px){.grid{grid-template-columns:repeat(2,1fr);gap:28px 12px}}
 
 .card{position:relative;display:flex;flex-direction:column}
-.card__media{position:relative;aspect-ratio:3/4;overflow:hidden;background:var(--areia)}
+.card__media{display:block;position:relative;aspect-ratio:3/4;overflow:hidden;background:var(--areia)}
 .card__media img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transition:opacity .5s,transform 1.2s cubic-bezier(.2,.7,.2,1)}
 .card__media img.alt{opacity:0}
 @media (hover:hover){
@@ -150,15 +150,16 @@ input,select,textarea{font:inherit;color:inherit}
   .card:hover .card__media img:only-of-type{transform:scale(1.04)}
 }
 .card__tag{position:absolute;top:12px;left:12px;z-index:2;background:var(--offwhite);font-size:10px;letter-spacing:.2em;text-transform:uppercase;padding:5px 9px;font-weight:500}
-.card__count{position:absolute;bottom:12px;right:12px;z-index:2;background:rgba(251,251,252,.9);font-size:11px;letter-spacing:.08em;padding:3px 8px}
-.card__quick{position:absolute;left:12px;right:12px;bottom:12px;z-index:3;height:42px;background:var(--offwhite);font-size:11px;letter-spacing:.2em;text-transform:uppercase;font-weight:500;opacity:0;transform:translateY(8px);transition:.3s}
-.card__quick:hover{background:var(--grafite);color:var(--offwhite)}
-@media (hover:hover){.card:hover .card__quick{opacity:1;transform:none}.card:hover .card__count{opacity:0}}
+.card__foto{position:relative}
+.card__count{position:absolute;bottom:12px;left:12px;z-index:2;background:rgba(251,251,252,.9);font-size:11px;letter-spacing:.08em;padding:3px 8px}
+.card__quick{position:absolute;right:10px;bottom:10px;z-index:3;display:inline-flex;align-items:center;gap:8px;height:40px;padding:0 16px 0 13px;background:var(--offwhite);color:var(--grafite);border-radius:20px;box-shadow:0 4px 14px rgba(0,0,0,.12);font-size:11px;letter-spacing:.16em;text-transform:uppercase;font-weight:500;transition:opacity .3s,transform .3s,background .2s,color .2s}
+.card__quick svg{width:17px;height:17px;flex:none;fill:none;stroke:currentColor;stroke-width:1.5}
+.card__quick:hover,.card__quick:focus-visible{background:var(--grafite);color:var(--offwhite)}
+@media (hover:hover){.card__quick{opacity:0;transform:translateY(6px)}.card:hover .card__quick,.card__quick:focus-visible{opacity:1;transform:none}}
+@media (hover:none){.card__quick{width:40px;padding:0;justify-content:center}.card__quick span{display:none}}
 .card__info{padding-top:14px;display:flex;flex-direction:column;gap:3px}
 .card__name{font-size:14px;letter-spacing:.12em;text-transform:uppercase;font-weight:400}
 .card__meta{font-size:13px;color:var(--cinza)}
-.card__cta{margin-top:10px;font-size:11px;letter-spacing:.18em;text-transform:uppercase;display:inline-flex;align-items:center;gap:8px;font-weight:500;align-self:flex-start;border-bottom:1px solid var(--linha);padding-bottom:2px}
-@media (hover:hover){.card__cta{display:none}}
 
 /* ---------- coleções (estações) ---------- */
 .seasons{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
