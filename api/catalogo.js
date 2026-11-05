@@ -10,7 +10,7 @@ export async function GET() {
       config: dados.config || {},
       produtos: (dados.produtos || []).filter((p) => p.visivel !== false)
     };
-    return json(publico, 200, { "cache-control": "public, max-age=0, s-maxage=15, stale-while-revalidate=300" });
+    return json(publico, 200, { "cache-control": "public, max-age=0, s-maxage=5, stale-while-revalidate=60" });
   } catch (e) {
     return json({ erro: "Catálogo indisponível" }, 500);
   }

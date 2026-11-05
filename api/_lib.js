@@ -1,5 +1,5 @@
 // Funções compartilhadas da API (arquivos que começam com _ não viram rotas na Vercel)
-import { put, get } from "@vercel/blob";
+import { put, get, head, BlobNotFoundError } from "@vercel/blob";
 import crypto from "node:crypto";
 
 export const ACCESS = process.env.BLOB_ACCESS === "private" ? "private" : "public";
@@ -52,11 +52,27 @@ export function exigirLogin(request) {
   return null;
 }
 
+// Lê sempre a versão mais nova. O get() do Blob ignora useCache:false em arquivos públicos e
+// devolve a cópia do CDN (até 60 s velha) — isso fazia o painel salvar com versão antiga e dar erro.
+// Por isso: head() (vai direto na API, etag atual) + download numa URL única por versão.
 export async function lerCatalogo() {
-  const r = await get(CAMINHO, { access: ACCESS, useCache: false });
-  if (!r || r.statusCode !== 200) return { dados: null, etag: null };
-  const texto = await new Response(r.stream).text();
-  return { dados: JSON.parse(texto), etag: r.blob.etag };
+  if (ACCESS === "private") {
+    const r = await get(CAMINHO, { access: ACCESS, useCache: false });
+    if (!r || r.statusCode !== 200) return { dados: null, etag: null };
+    return { dados: JSON.parse(await new Response(r.stream).text()), etag: r.blob.etag };
+  }
+  let info;
+  try { info = await head(CAMINHO); }
+  catch (e) { if (e instanceof BlobNotFoundError || /not.?found/i.test(String(e && e.message))) return { dados: null, etag: null }; throw e; }
+  for (let i = 0; i < 3; i++) {
+    const u = new URL(info.url);
+    u.searchParams.set("v", i === 0 ? info.etag.replace(/\W/g, "") : Date.now() + "-" + i);
+    const r = await fetch(u, { cache: "no-store" });
+    if (!r.ok) throw new Error("Falha ao ler o catálogo (" + r.status + ")");
+    const etagResp = r.headers.get("etag");
+    const texto = await r.text();
+    if (!etagResp || etagResp === info.etag || i === 2) return { dados: JSON.parse(texto), etag: info.etag };
+  }
 }
 
 export async function salvarCatalogo(dados, etag) {
@@ -69,7 +85,7 @@ export async function salvarCatalogo(dados, etag) {
 
 // Lê, altera e salva com controle de versão (tenta de novo se alguém salvou no meio)
 export async function alterarCatalogo(fn) {
-  for (let tentativa = 0; tentativa < 3; tentativa++) {
+  for (let tentativa = 0; tentativa < 4; tentativa++) {
     const { dados, etag } = await lerCatalogo();
     const base = dados || { versao: 1, config: {}, produtos: [] };
     const resultado = await fn(base);
@@ -77,7 +93,8 @@ export async function alterarCatalogo(fn) {
       await salvarCatalogo(base, etag);
       return { dados: base, resultado };
     } catch (e) {
-      if (!/precondition/i.test(String(e && (e.name + e.message)))) throw e;
+      if (!/precondition|etag/i.test(String(e && (e.name + e.message)))) throw e;
+      await new Promise((ok) => setTimeout(ok, 300 * (tentativa + 1)));
     }
   }
   throw new Error("Não foi possível salvar: o catálogo foi alterado ao mesmo tempo. Tente de novo.");
